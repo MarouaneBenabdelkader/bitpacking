@@ -82,9 +82,14 @@ def benchmark_decompress(bp, pack: dict, warmup: int = 3, repeats: int = 10) -> 
     return {"median_ns": percentile(timings, 0.5), "p95_ns": percentile(timings, 0.95)}
 
 
-def run_benchmarks():
-    """Run all benchmarks and print JSON results."""
-    bp = get_bitpacking("noncross")
+def run_benchmarks(implementation: str = "noncross"):
+    """
+    Run all benchmarks and print JSON results.
+
+    Args:
+        implementation: Name of implementation to benchmark ("noncross" or "cross")
+    """
+    bp = get_bitpacking(implementation)
 
     # Dataset 1: Small values (0-255)
     small_data = [random.randint(0, 255) for _ in range(10000)]
@@ -96,6 +101,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "small",
+                "impl": implementation,
                 "n": len(small_data),
                 "k": k_small,
                 "op": "compress",
@@ -110,6 +116,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "small",
+                "impl": implementation,
                 "n": len(small_data),
                 "k": k_small,
                 "op": "get",
@@ -124,6 +131,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "small",
+                "impl": implementation,
                 "n": len(small_data),
                 "k": k_small,
                 "op": "decompress",
@@ -143,6 +151,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "medium",
+                "impl": implementation,
                 "n": len(medium_data),
                 "k": k_medium,
                 "op": "compress",
@@ -157,6 +166,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "medium",
+                "impl": implementation,
                 "n": len(medium_data),
                 "k": k_medium,
                 "op": "get",
@@ -171,6 +181,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "medium",
+                "impl": implementation,
                 "n": len(medium_data),
                 "k": k_medium,
                 "op": "decompress",
@@ -193,6 +204,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "skewed",
+                "impl": implementation,
                 "n": len(skewed_data),
                 "k": k_skewed,
                 "op": "compress",
@@ -207,6 +219,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "skewed",
+                "impl": implementation,
                 "n": len(skewed_data),
                 "k": k_skewed,
                 "op": "get",
@@ -221,6 +234,7 @@ def run_benchmarks():
         json.dumps(
             {
                 "case": "skewed",
+                "impl": implementation,
                 "n": len(skewed_data),
                 "k": k_skewed,
                 "op": "decompress",

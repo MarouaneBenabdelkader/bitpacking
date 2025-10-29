@@ -30,7 +30,7 @@ def cmd_compress(args):
 def cmd_decompress(args):
     """Decompress a packed array to JSON file."""
     with open(args.input) as f:
-        packed = json.load(f) 
+        packed = json.load(f)
 
     bp = get_bitpacking(args.implementation)
     data = bp.decompress(packed)
@@ -60,7 +60,7 @@ def cmd_get(args):
 
 def cmd_bench(args):
     """Run benchmarks."""
-    run_benchmarks()
+    run_benchmarks(args.implementation)
 
 
 def main():
@@ -70,7 +70,7 @@ def main():
         "--implementation",
         "-i",
         default="noncross",
-        choices=["noncross"],
+        choices=["noncross", "cross"],
         help="Bit packing implementation to use",
     )
 

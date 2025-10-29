@@ -1,6 +1,7 @@
 """Factory for creating bit packing implementations by name."""
 
 from bitpacking.base import BitPacking
+from bitpacking.cross import BitPackingCrossed
 from bitpacking.noncross import BitPackingNonCross
 
 
@@ -11,6 +12,7 @@ def get_bitpacking(name: str = "noncross") -> BitPacking:
     Args:
         name: Name of implementation. Options:
             - "noncross": Non-crossing bit packing (default)
+            - "cross": Crossing bit packing (values can span word boundaries)
 
     Returns:
         BitPacking implementation instance.
@@ -24,6 +26,7 @@ def get_bitpacking(name: str = "noncross") -> BitPacking:
     """
     implementations = {
         "noncross": BitPackingNonCross,
+        "cross": BitPackingCrossed,
     }
 
     if name not in implementations:
