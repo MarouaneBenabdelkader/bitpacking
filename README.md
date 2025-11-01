@@ -274,8 +274,7 @@ bitpacking/
 │   └── test_transmission.py # 11 tests
 ├── pyproject.toml           # Project configuration
 ├── README.md                # This file
-├── report.tex               # Academic report (LaTeX)
-└── LICENSE                  # MIT License
+└── report.tex               # Academic report (LaTeX)
 ```
 
 ## Algorithms
@@ -415,10 +414,6 @@ pip install -e ".[dev]"
 
 **Solution**: See "Generating the Report" section above for alternative compilation methods
 
-## License
-
-MIT License - See LICENSE file for details
-
 ## Author
 
 **Marouane BENABDELKADER**  
@@ -538,11 +533,7 @@ make view              # Compile and open PDF
 # Or directly with pdflatex
 pdflatex report.tex
 pdflatex report.tex    # Run twice for TOC
-
-# See LATEX_GUIDE.md for detailed instructions
 ```
-
-**Online compilation**: Upload `report.tex` to [Overleaf](https://www.overleaf.com)
 
 ### Markdown Report
 
