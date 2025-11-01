@@ -43,5 +43,7 @@ htmlcov/
 .tox/
 
 # Project specific
-*.json
-!pyproject.toml
+# Keep test data files
+!test*.json
+!test*.txt
+*.tex
