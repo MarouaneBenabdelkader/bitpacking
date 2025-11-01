@@ -53,3 +53,13 @@ class BitPacking(ABC):
             IndexError: If index is out of bounds.
         """
         pass
+
+    @abstractmethod
+    def load(self, pack: dict) -> None:
+        """
+        Load a previously compressed representation to enable get() operations.
+
+        Args:
+            pack: Dictionary with compressed data from compress().
+        """
+        pass

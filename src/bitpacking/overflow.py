@@ -407,3 +407,12 @@ class BitPackingOverflow(BitPacking):
         bit_offset = slot * k
         mask = (1 << k) - 1
         return (words[word_idx] >> bit_offset) & mask
+
+    def load(self, pack: dict) -> None:
+        """
+        Load a previously compressed representation to enable get() operations.
+
+        Args:
+            pack: Dictionary with compressed data from compress().
+        """
+        self._pack = pack

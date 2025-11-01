@@ -242,3 +242,12 @@ class BitPackingCrossed(BitPacking):
             value = (upper_bits << bits_remaining) | lower_bits
 
         return value
+
+    def load(self, pack: dict) -> None:
+        """
+        Load a previously compressed representation to enable get() operations.
+
+        Args:
+            pack: Dictionary with compressed data from compress().
+        """
+        self._pack = pack

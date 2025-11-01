@@ -175,3 +175,12 @@ class BitPackingNonCross(BitPacking):
         # Extract and return value
         value = (words[word_idx] >> bit_offset) & mask
         return value
+
+    def load(self, pack: dict) -> None:
+        """
+        Load a previously compressed representation to enable get() operations.
+
+        Args:
+            pack: Dictionary with compressed data from compress().
+        """
+        self._pack = pack

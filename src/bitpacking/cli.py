@@ -24,8 +24,16 @@ def cmd_compress(args):
     with open(args.output, "w") as f:
         json.dump(packed, f)
 
-    print(f"Compressed {len(data)} values to {args.output}")
-    print(f"k={packed['k']} bits, {len(packed['words'])} words")
+    print(f"\n[OK] Compression successful!")
+    print(f"  Input: {args.input}")
+    print(f"  Output: {args.output}")
+    print(f"  Original data: {data}")
+    print(f"  Number of values (n): {len(data)}")
+    print(f"  Bits per value (k): {packed['k']}")
+    print(f"  Storage words: {len(packed['words'])}")
+    if 'overflow' in packed and packed['overflow']:
+        print(f"  Overflow entries: {len(packed['overflow'])}")
+        print(f"  Overflow indices: {list(packed['overflow'].keys())}")
 
 
 def cmd_decompress(args):
@@ -39,7 +47,11 @@ def cmd_decompress(args):
     with open(args.output, "w") as f:
         json.dump(data, f)
 
-    print(f"Decompressed {len(data)} values to {args.output}")
+    print(f"\n[OK] Decompression successful!")
+    print(f"  Input: {args.input}")
+    print(f"  Output: {args.output}")
+    print(f"  Decompressed data: {data}")
+    print(f"  Number of values: {len(data)}")
 
 
 def cmd_get(args):
@@ -48,8 +60,7 @@ def cmd_get(args):
         packed = json.load(f)
 
     bp = get_bitpacking(args.implementation)
-    bp.compress([])  # Initialize with empty to set up state
-    bp._pack = packed  # Set the pack directly
+    bp.load(packed)
 
     try:
         value = bp.get(args.index)
@@ -62,6 +73,133 @@ def cmd_get(args):
 def cmd_bench(args):
     """Run benchmarks."""
     run_benchmarks(args.implementation)
+
+
+def cmd_interactive(args):
+    """Run interactive guided mode."""
+    print("=" * 60)
+    print("BitPacking Interactive Mode")
+    print("=" * 60)
+    
+    # Ask user to choose implementation
+    print("\nAvailable implementations:")
+    print("  1. noncross         - Non-crossing boundaries")
+    print("  2. cross            - Crossing boundaries allowed")
+    print("  3. overflow         - Two-tier with overflow (crossing)")
+    print("  4. overflow-noncross- Two-tier with overflow (non-crossing)")
+    
+    while True:
+        impl_choice = input("\nSelect implementation (1-4): ").strip()
+        if impl_choice == "1":
+            implementation = "noncross"
+            break
+        elif impl_choice == "2":
+            implementation = "cross"
+            break
+        elif impl_choice == "3":
+            implementation = "overflow"
+            break
+        elif impl_choice == "4":
+            implementation = "overflow-noncross"
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, 3, or 4.")
+    
+    bp = get_bitpacking(implementation)
+    last_pack = None
+    last_data = None
+    
+    print(f"\n[OK] Using '{implementation}' implementation")
+    print("=" * 60)
+    
+    while True:
+        print("\nOptions:")
+        print("  1. Compress data")
+        print("  2. Decompress (show last compressed data)")
+        print("  3. Get value at index")
+        print("  4. Exit")
+        
+        try:
+            choice = input("\nEnter your choice (1-4): ").strip()
+            
+            if choice == "1":
+                # Compress
+                numbers_input = input("Enter integers separated by spaces: ").strip()
+                try:
+                    numbers = [int(x) for x in numbers_input.split()]
+                    if not numbers:
+                        print("Error: Please enter at least one number.")
+                        continue
+                    
+                    last_data = numbers
+                    last_pack = bp.compress(numbers)
+                    bp.load(last_pack)
+                    
+                    print(f"\n[OK] Compression successful!")
+                    print(f"  Original data: {numbers}")
+                    print(f"  Number of values (n): {last_pack['n']}")
+                    print(f"  Bits per value (k): {last_pack['k']}")
+                    print(f"  Storage words: {len(last_pack['words'])}")
+                    if 'overflow' in last_pack and last_pack['overflow']:
+                        print(f"  Overflow entries: {len(last_pack['overflow'])}")
+                        print(f"  Overflow indices: {list(last_pack['overflow'].keys())}")
+                except ValueError as e:
+                    print(f"Error: Invalid input. Please enter integers only.")
+                except Exception as e:
+                    print(f"Error during compression: {e}")
+            
+            elif choice == "2":
+                # Decompress
+                if last_pack is None:
+                    print("Error: You must compress data first.")
+                    continue
+                
+                try:
+                    result = bp.decompress(last_pack)
+                    print(f"\n[OK] Decompression successful!")
+                    print(f"  Decompressed data: {result}")
+                    if last_data:
+                        if result == last_data:
+                            print(f"  [OK] Matches original data")
+                        else:
+                            print(f"  [!] WARNING: Does not match original!")
+                except Exception as e:
+                    print(f"Error during decompression: {e}")
+            
+            elif choice == "3":
+                # Get
+                if last_pack is None:
+                    print("Error: You must compress data first.")
+                    continue
+                
+                try:
+                    index_input = input("Enter index (0 to {}): ".format(last_pack['n'] - 1)).strip()
+                    index = int(index_input)
+                    value = bp.get(index)
+                    print(f"\n[OK] Value at index {index}: {value}")
+                    if last_data and 0 <= index < len(last_data):
+                        print(f"  (Original value: {last_data[index]})")
+                except ValueError:
+                    print("Error: Invalid index. Please enter an integer.")
+                except IndexError as e:
+                    print(f"Error: {e}")
+                except Exception as e:
+                    print(f"Error: {e}")
+            
+            elif choice == "4":
+                # Exit
+                print("\nExiting interactive mode. Goodbye!")
+                break
+            
+            else:
+                print("Error: Invalid choice. Please enter 1, 2, 3, or 4.")
+        
+        except KeyboardInterrupt:
+            print("\n\nExiting interactive mode. Goodbye!")
+            break
+        except EOFError:
+            print("\n\nExiting.")
+            break
 
 
 def cmd_transmission(args):
@@ -122,7 +260,7 @@ def main():
         "--implementation",
         "-i",
         default="noncross",
-        choices=["noncross", "cross"],
+        choices=["noncross", "cross", "overflow", "overflow-cross", "overflow-noncross"],
         help="Bit packing implementation to use",
     )
 
@@ -149,6 +287,9 @@ def main():
 
     # Bench command
     subparsers.add_parser("bench", help="Run benchmarks")
+
+    # Interactive command
+    subparsers.add_parser("interactive", help="Interactive guided mode")
 
     # Transmission analysis command
     trans_parser = subparsers.add_parser("transmission", help="Analyze transmission time scenarios")
@@ -177,6 +318,8 @@ def main():
         cmd_get(args)
     elif args.command == "bench":
         cmd_bench(args)
+    elif args.command == "interactive":
+        cmd_interactive(args)
     elif args.command == "transmission":
         cmd_transmission(args)
 

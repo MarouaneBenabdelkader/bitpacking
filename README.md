@@ -20,10 +20,12 @@ All implementations maintain O(1) random access to compressed elements.
 ## Features
 
 - Three bit packing algorithms with different trade-offs
-- Direct random access without full decompression
+- Direct random access without full decompression (O(1) access via `load()` method)
+- **Interactive mode** for guided exploration of bit packing
+- **Enhanced CLI output** showing detailed compression/decompression results
 - Comprehensive benchmarking suite
 - Transmission time analysis
-- Command-line interface
+- Command-line interface with all implementations available
 - Factory pattern for algorithm selection
 - Full test coverage (69 tests)
 
@@ -135,14 +137,24 @@ pytest tests/ --cov=bitpacking --cov-report=html
 
 ### Command Line Interface
 
+The CLI now provides enhanced output showing detailed compression/decompression results.
+
 #### 1. Compress an Array
 
 ```bash
-# Create input file
-echo "[1, 5, 3, 7, 2, 8, 4, 6, 9, 10]" > input.json
+# Create input file (use Python to ensure proper JSON formatting)
+python -c "import json; json.dump([1, 5, 3, 7, 2, 8, 4, 6, 9, 10], open('input.json', 'w'))"
 
 # Compress with non-crossing (default)
 bitpacking compress --in input.json --out compressed.json
+# Output:
+# [OK] Compression successful!
+#   Input: input.json
+#   Output: compressed.json
+#   Original data: [1, 5, 3, 7, 2, 8, 4, 6, 9, 10]
+#   Number of values (n): 10
+#   Bits per value (k): 4
+#   Storage words: 2
 
 # Compress with crossing (better compression)
 bitpacking -i cross compress --in input.json --out compressed.json
@@ -155,6 +167,12 @@ bitpacking -i overflow compress --in input.json --out compressed.json
 
 ```bash
 bitpacking decompress --in compressed.json --out output.json
+# Output:
+# [OK] Decompression successful!
+#   Input: compressed.json
+#   Output: output.json
+#   Decompressed data: [1, 5, 3, 7, 2, 8, 4, 6, 9, 10]
+#   Number of values: 10
 ```
 
 #### 3. Random Access (Get Element)
@@ -165,17 +183,64 @@ bitpacking get --in compressed.json --index 3
 # Output: 7
 ```
 
-#### 4. Run Benchmarks
+#### 4. Interactive Mode (New!)
+
+The interactive mode provides a guided experience for exploring bit packing:
 
 ```bash
-# Benchmark non-crossing
-bitpacking bench
+# Launch interactive mode
+bitpacking interactive
+```
 
-# Benchmark crossing
-bitpacking -i cross bench
+The interactive mode will:
+1. Ask you to choose an implementation (noncross, cross, overflow, overflow-noncross)
+2. Present a menu with options:
+   - **Compress**: Enter space-separated integers to compress
+   - **Decompress**: View the decompressed data and verify correctness
+   - **Get**: Retrieve a value at a specific index
+   - **Exit**: Quit the interactive mode
 
-# Benchmark overflow
-bitpacking -i overflow bench
+Example session:
+```
+============================================================
+BitPacking Interactive Mode
+============================================================
+
+Available implementations:
+  1. noncross         - Non-crossing boundaries
+  2. cross            - Crossing boundaries allowed
+  3. overflow         - Two-tier with overflow (crossing)
+  4. overflow-noncross- Two-tier with overflow (non-crossing)
+
+Select implementation (1-4): 3
+
+[OK] Using 'overflow' implementation
+============================================================
+
+Options:
+  1. Compress data
+  2. Decompress (show last compressed data)
+  3. Get value at index
+  4. Exit
+
+Enter your choice (1-4): 1
+Enter integers separated by spaces: 100 200 65000 300 400
+
+[OK] Compression successful!
+  Original data: [100, 200, 65000, 300, 400]
+  Number of values (n): 5
+  Bits per value (k): 16
+  Storage words: 3
+```
+
+#### 5. Run Benchmarks
+
+```bash
+# Benchmark any implementation
+bitpacking bench                    # non-crossing (default)
+bitpacking -i cross bench          # crossing
+bitpacking -i overflow bench       # overflow with crossing
+bitpacking -i overflow-noncross bench  # overflow without crossing
 ```
 
 Output includes:
@@ -184,7 +249,7 @@ Output includes:
 - Random access time (median and p95)
 - Compression ratio
 
-#### 5. Transmission Time Analysis
+#### 6. Transmission Time Analysis
 
 ```bash
 # Analyze when compression is beneficial
@@ -274,7 +339,7 @@ bitpacking/
 │   └── test_transmission.py # 11 tests
 ├── pyproject.toml           # Project configuration
 ├── README.md                # This file
-└── report.tex               # Academic report (LaTeX)
+└── bitpacking.pdf           # Academic report (PDF)
 ```
 
 ## Algorithms
@@ -410,10 +475,6 @@ pip install -e ".[dev]"
 pip install -e ".[dev]"
 ```
 
-### Issue: LaTeX compilation fails
-
-**Solution**: See "Generating the Report" section above for alternative compilation methods
-
 ## Author
 
 **Marouane BENABDELKADER**  
@@ -533,14 +594,4 @@ make view              # Compile and open PDF
 # Or directly with pdflatex
 pdflatex report.tex
 pdflatex report.tex    # Run twice for TOC
-```
-
-### Markdown Report
-
-A simpler markdown report (`REPORT.md`) is also available:
-
-```bash
-python generate_report.py
-# Convert to PDF (requires pandoc):
-pandoc REPORT.md -o REPORT.pdf --pdf-engine=xelatex -V geometry:margin=1in
 ```
