@@ -261,9 +261,11 @@ Output includes:
 #### 6. Transmission Time Analysis
 
 ```bash
-# Analyze when compression is beneficial
-bitpacking transmission --uncompressed-bits 320000 --compressed-bits 80000 \
-    --compression-time 1000000 --decompression-time 500000
+# Analyze when compression is beneficial (all parameters on one line for easy copy-paste)
+bitpacking transmission --uncompressed-bits 320000 --compressed-bits 80000 --compression-time 1000000 --decompression-time 500000
+
+# Or analyze from an existing compressed file
+bitpacking transmission --file compressed.json
 
 # Shows analysis for different network speeds:
 # - 10 Gbps LAN
