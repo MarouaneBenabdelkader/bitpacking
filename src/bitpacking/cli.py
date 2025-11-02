@@ -34,7 +34,7 @@ def cmd_compress(args):
     print(f"  Compressed words: {packed['words']}")
     if 'overflow' in packed and packed['overflow']:
         print(f"  Overflow entries: {len(packed['overflow'])}")
-        print(f"  Overflow indices: {list(packed['overflow'].keys())}")
+        print(f"  Overflow values: {packed['overflow']}")
 
 
 def cmd_decompress(args):
@@ -144,7 +144,7 @@ def cmd_interactive(args):
                     print(f"  Compressed words: {last_pack['words']}")
                     if 'overflow' in last_pack and last_pack['overflow']:
                         print(f"  Overflow entries: {len(last_pack['overflow'])}")
-                        print(f"  Overflow indices: {list(last_pack['overflow'].keys())}")
+                        print(f"  Overflow values: {last_pack['overflow']}")
                 except ValueError:
                     print("Error: Invalid input. Please enter integers only.")
                 except Exception as e:

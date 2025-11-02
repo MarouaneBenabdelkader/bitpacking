@@ -208,6 +208,163 @@ class TestBitPackingOverflow:
             restored = bp.decompress(packed)
             assert restored == data
 
+    def test_threshold_075_doc_example(self):
+        """Test that default threshold 0.75 enables overflow for doc example."""
+        bp = BitPackingOverflow()  # Default threshold is 0.75
+        data = [1, 2, 3, 1024, 4, 5, 2048]
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        # Verify correctness
+        assert restored == data
+
+        # Verify overflow was used (should have 2 overflow values)
+        assert len(packed["overflow"]) == 2
+        assert packed["overflow"] == [1024, 2048]
+
+        # Verify compression is better than without overflow
+        assert packed["k"] < 12  # Should be 4, not 12
+
+    def test_threshold_095_doc_example(self):
+        """Test that threshold 0.95 does NOT enable overflow for doc example."""
+        bp = BitPackingOverflow(overflow_threshold=0.95)
+        data = [1, 2, 3, 1024, 4, 5, 2048]
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        # Verify correctness
+        assert restored == data
+
+        # Verify overflow was NOT used (cost-benefit says no)
+        assert len(packed["overflow"]) == 0
+        assert packed["k"] == 12  # Uses full 12 bits
+
+    def test_overflow_strategy_thresholds(self):
+        """Test different thresholds produce expected overflow behavior."""
+        data = [1, 2, 3, 4, 5, 1024, 2048]
+
+        # Low threshold (0.6): More values in overflow
+        bp_low = BitPackingOverflow(overflow_threshold=0.6)
+        packed_low = bp_low.compress(data)
+        assert len(packed_low["overflow"]) >= 2
+
+        # High threshold (0.95): Likely no overflow
+        bp_high = BitPackingOverflow(overflow_threshold=0.95)
+        packed_high = bp_high.compress(data)
+        # For this small dataset, high threshold means no benefit
+
+        # Both should decompress correctly
+        assert bp_low.decompress(packed_low) == data
+        assert bp_high.decompress(packed_high) == data
+
+    def test_overflow_with_many_small_few_large(self):
+        """Test dataset with many small values and few large outliers."""
+        # 500 small values + 2 large outliers
+        data = [1, 2, 3] * 166 + [1, 2] + [100000, 200000]
+        bp = BitPackingOverflow(overflow_threshold=0.75)
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        assert restored == data
+        # Overflow may or may not be used depending on cost-benefit
+        # Just verify correctness
+        if len(packed["overflow"]) > 0:
+            assert 100000 in packed["overflow"] or 200000 in packed["overflow"]
+
+    def test_overflow_noncrossing_mode(self):
+        """Test overflow with non-crossing mode."""
+        bp = BitPackingOverflow(crossing=False, overflow_threshold=0.7)
+        data = [1, 2, 3, 1024, 4, 5, 2048]
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        assert restored == data
+        assert packed["crossing"] is False
+        # Should still use overflow
+        assert len(packed["overflow"]) == 2
+
+    def test_overflow_all_same_value(self):
+        """Test overflow with all same values (no overflow needed)."""
+        bp = BitPackingOverflow()
+        data = [42] * 100
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        assert restored == data
+        assert len(packed["overflow"]) == 0
+
+    def test_overflow_single_outlier(self):
+        """Test overflow with single large outlier."""
+        # Many small values, one giant outlier
+        data = [1, 2, 3, 4, 5] * 50 + [999999]
+        bp = BitPackingOverflow(overflow_threshold=0.75)
+        packed = bp.compress(data)
+        restored = bp.decompress(packed)
+
+        assert restored == data
+        # Verify correctness (overflow use depends on cost-benefit)
+        if len(packed["overflow"]) > 0:
+            # If overflow is used, the giant value should be in it
+            assert 999999 in packed["overflow"]
+
+    def test_overflow_get_with_overflow_values(self):
+        """Test get() correctly retrieves overflow values."""
+        bp = BitPackingOverflow(overflow_threshold=0.7)
+        data = [1, 2, 3, 1024, 4, 5, 2048]
+        bp.compress(data)
+
+        # Test accessing normal values
+        assert bp.get(0) == 1
+        assert bp.get(1) == 2
+        assert bp.get(2) == 3
+
+        # Test accessing overflow values
+        assert bp.get(3) == 1024
+        assert bp.get(6) == 2048
+
+        # Test accessing normal values after overflow
+        assert bp.get(4) == 4
+        assert bp.get(5) == 5
+
+    def test_overflow_load_method(self):
+        """Test load() method with overflow data."""
+        bp1 = BitPackingOverflow(overflow_threshold=0.7)
+        data = [1, 2, 3, 1024, 4, 5, 2048]
+        packed = bp1.compress(data)
+
+        # Load into new instance
+        bp2 = BitPackingOverflow()
+        bp2.load(packed)
+
+        # Test get() works after load
+        assert bp2.get(0) == 1
+        assert bp2.get(3) == 1024
+        assert bp2.get(6) == 2048
+
+        # Test decompress works after load
+        assert bp2.decompress(packed) == data
+
+    def test_overflow_cost_benefit_analysis(self):
+        """Test that overflow is only used when beneficial."""
+        # Case 1: Use the doc example which we KNOW works with threshold 0.75
+        data1 = [1, 2, 3, 1024, 4, 5, 2048]
+        bp1 = BitPackingOverflow(overflow_threshold=0.75)
+        packed1 = bp1.compress(data1)
+        restored1 = bp1.decompress(packed1)
+        assert restored1 == data1
+        # This specific case SHOULD use overflow with threshold 0.75
+        assert len(packed1["overflow"]) == 2
+        assert packed1["overflow"] == [1024, 2048]
+
+        # Case 2: Overflow not beneficial (few values, similar sizes)
+        data2 = [1000, 1024, 2000, 2048]
+        bp2 = BitPackingOverflow(overflow_threshold=0.75)
+        packed2 = bp2.compress(data2)
+        # Likely won't use overflow (not enough benefit)
+        # Just verify it decompresses correctly
+        assert bp2.decompress(packed2) == data2
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

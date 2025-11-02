@@ -34,15 +34,15 @@ def get_bitpacking(name: str = "noncross", **kwargs) -> BitPacking:
     if name == "overflow":
         return BitPackingOverflow(
             crossing=kwargs.get("crossing", True),
-            overflow_threshold=kwargs.get("overflow_threshold", 0.95),
+            overflow_threshold=kwargs.get("overflow_threshold", 0.75),
         )
     elif name == "overflow-cross":
         return BitPackingOverflow(
-            crossing=True, overflow_threshold=kwargs.get("overflow_threshold", 0.95)
+            crossing=True, overflow_threshold=kwargs.get("overflow_threshold", 0.75)
         )
     elif name == "overflow-noncross":
         return BitPackingOverflow(
-            crossing=False, overflow_threshold=kwargs.get("overflow_threshold", 0.95)
+            crossing=False, overflow_threshold=kwargs.get("overflow_threshold", 0.75)
         )
 
     implementations = {
