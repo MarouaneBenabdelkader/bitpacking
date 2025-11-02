@@ -84,7 +84,9 @@ class BitPackingOverflow(BitPacking):
 
         # Check if overflow is actually beneficial
         k_no_overflow = max(int_list).bit_length()
-        total_bits_with_overflow = len(int_list) * k_main + len(overflow_indices) * 32
+        total_bits_with_overflow = (len(int_list) * k_main) + (
+            len(overflow_indices) * k_no_overflow
+        )
         total_bits_without_overflow = len(int_list) * k_no_overflow
 
         if total_bits_with_overflow >= total_bits_without_overflow:
