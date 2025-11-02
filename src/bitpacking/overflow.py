@@ -63,7 +63,7 @@ class BitPackingOverflow(BitPacking):
             return sorted_vals[0].bit_length(), 0, []
 
         # Find threshold at specified percentile
-        threshold_idx = int(n_unique * self._overflow_threshold)
+        threshold_idx = int((n_unique - 1) * self._overflow_threshold)
         if threshold_idx >= n_unique:
             threshold_idx = n_unique - 1
 
@@ -80,7 +80,7 @@ class BitPackingOverflow(BitPacking):
         # Calculate bits needed
         k_normal = threshold_value.bit_length()  # bits for normal values
         k_overflow_idx = len(overflow_indices).bit_length()  # bits to index overflow
-        k_main = k_normal + 1  # +1 for overflow flag bit
+        k_main = max(k_normal, k_overflow_idx) + 1  # +1 for overflow flag bit
 
         # Check if overflow is actually beneficial
         k_no_overflow = max(int_list).bit_length()
