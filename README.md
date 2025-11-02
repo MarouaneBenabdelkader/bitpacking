@@ -90,9 +90,11 @@ This will install:
 # Check that the command-line tool is available
 bitpacking --help
 
-# Should display:
-# usage: bitpacking [-h] [--implementation {noncross,cross}] 
-#                   {compress,decompress,get,bench,transmission} ...
+# Should display usage information for all commands:
+# - compress, decompress, get: File operations
+# - bench: Performance benchmarks
+# - interactive: Interactive guided mode
+# - transmission: Network analysis
 ```
 
 ## Running Tests
@@ -514,105 +516,3 @@ This project was developed as part of the Software Engineering course 2025, demo
 - Performance analysis and optimization
 - Comprehensive testing practices
 - Technical documentation
-  bitpacking -i overflow bench  # Benchmark overflow
-
-# Outputs JSON lines with performance metrics
-
-```
-
-## Transmission Time Analysis
-
-Use the transmission analysis tool to determine when compression is worthwhile:
-
-```bash
-bitpacking transmission --uncompressed-bits 320000 --compressed-bits 80000 \
-    --compression-time 1000000 --decompression-time 500000
-```
-
-This analyzes various network scenarios (10 Gbps LAN, 1 Mbps, 56k modem, etc.) and shows whether compression reduces total transmission time including compression/decompression overhead.
-
-**Key insight**: Compression is most beneficial on slower networks where transmission time dominates. On very fast networks, the compression overhead may exceed the transmission time savings.
-
-```
-
-## Algorithms
-
-### Non-Crossing Bit Packing
-
-The non-crossing implementation:
-
-- Uses fixed bit-width `k` = minimum bits needed for max value
-- Packs values into 32-bit words without crossing boundaries
-- Capacity per word = 32 // k
-- Enables fast random access: O(1) get operations
-- Trade-off: Some bits wasted due to alignment padding
-
-### Crossing Bit Packing
-
-The crossing implementation:
-
-- Uses fixed bit-width `k` = minimum bits needed for max value
-- Values can span across two consecutive 32-bit words
-- Optimal space usage: total bits = n × k exactly (no wasted bits)
-- O(1) random access with bit offset calculation
-- Slightly more complex bit manipulation for read/write
-- Trade-off: Better compression, slightly slower access
-
-### Overflow Bit Packing
-
-The overflow implementation:
-
-- Uses two-tier storage: main array + overflow array
-- Most values stored in main array with `k_main` bits (based on percentile threshold)
-- Outlier values stored in separate overflow array with full bit-width
-- Each value has overflow flag bit indicating which array to use
-- Efficient when few values are much larger than the majority
-- Example: [1, 2, 3, 1024, 4, 5, 2048] → stores most with 3 bits, outliers separately
-- O(1) random access by checking overflow flag
-- Trade-off: Excellent compression for skewed distributions
-
-### Performance Comparison
-
-For 10,000 values with k=7 bits:
-- **Non-crossing**: Uses 25 words (800 bits wasted)
-- **Crossing**: Uses 22 words (no wasted bits)
-
-For 10,000 values mostly 3-bit with two 11-bit outliers:
-- **Standard crossing**: Uses 11-bit encoding for all values (wasteful)
-- **Overflow crossing**: Uses 4-bit main + small overflow (efficient)
-
-## TODO
-
-- [x] Crossing bit packing (higher compression)
-- [x] Overflow handling for large value ranges
-- [x] Transmission time analysis
-- [x] Comprehensive project report (Markdown + LaTeX)
-- [ ] Negative number support
-- [ ] Additional compression schemes
-
-## Project Reports
-
-### Academic LaTeX Report (Recommended)
-
-A comprehensive 20-25 page academic report (`report.tex`) covering:
-
-- Problem statement and motivation
-- Software architecture with design patterns
-- Separation of concerns and module design
-- Three algorithm implementations with complexity analysis
-- Performance evaluation and benchmarks
-- Transmission time analysis
-- Testing methodology and validation
-- Future enhancements
-
-**Compile the LaTeX report:**
-
-```bash
-# Using Make (recommended)
-make                    # Compile to PDF
-make view              # Compile and open PDF
-
-# Or directly with pdflatex
-pdflatex report.tex
-pdflatex report.tex    # Run twice for TOC
-```
