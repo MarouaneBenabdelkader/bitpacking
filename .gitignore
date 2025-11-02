@@ -53,3 +53,5 @@ test_files/*.json
 # Project specific
 *.tex
 Makefile
+analyze_threshold.py
+test_doc_example.py

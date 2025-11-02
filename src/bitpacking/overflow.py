@@ -24,7 +24,7 @@ class BitPackingOverflow(BitPacking):
     Maintains O(1) random access through precomputed overflow positions.
     """
 
-    def __init__(self, crossing: bool = True, overflow_threshold: float = 0.95):
+    def __init__(self, crossing: bool = True, overflow_threshold: float = 0.75):
         """
         Initialize overflow bit packing.
 
