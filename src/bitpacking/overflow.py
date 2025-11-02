@@ -34,7 +34,7 @@ class BitPackingOverflow(BitPacking):
             overflow_threshold: Percentile to use as overflow threshold (0-1).
                               Values above this percentile go to overflow.
         """
-        self._pack = None
+        self._pack: dict | None = None
         self._crossing = crossing
         self._overflow_threshold = overflow_threshold
 

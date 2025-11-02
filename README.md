@@ -416,19 +416,13 @@ bitpacking/
 
 ## Benchmarks
 
-Run the comprehensive benchmark suite:
+Run the benchmark command to test performance:
 
 ```bash
-# Generate full benchmark report
-python generate_report.py
+bitpacking bench
 ```
 
-This creates `REPORT.md` with detailed performance analysis including:
-
-- Compression ratios for each implementation
-- Timing measurements (compress, decompress, get operations)
-- Network scenario analysis
-- When compression is worthwhile vs. transmission costs
+Or use the Python API to run custom benchmarks (see `src/bitpacking/bench.py`).
 
 ## Transmission Time Analysis
 
@@ -471,13 +465,13 @@ The report includes:
 The project follows best practices:
 
 ```bash
-# Run code formatter
+# Run code formatter (enforces consistent style)
 black src/ tests/
 
-# Run linter
+# Run linter (finds bugs and style errors)
 ruff check src/ tests/
 
-# Run type checker (if mypy installed)
+# Run type checker (validates type hints)
 mypy src/
 
 # All quality checks should pass

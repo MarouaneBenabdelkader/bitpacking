@@ -24,7 +24,7 @@ def cmd_compress(args):
     with open(args.output, "w") as f:
         json.dump(packed, f)
 
-    print(f"\n[OK] Compression successful!")
+    print("\n[OK] Compression successful!")
     print(f"  Input: {args.input}")
     print(f"  Output: {args.output}")
     print(f"  Original data: {data}")
@@ -48,7 +48,7 @@ def cmd_decompress(args):
     with open(args.output, "w") as f:
         json.dump(data, f)
 
-    print(f"\n[OK] Decompression successful!")
+    print("\n[OK] Decompression successful!")
     print(f"  Input: {args.input}")
     print(f"  Output: {args.output}")
     print(f"  Decompressed data: {data}")
@@ -81,14 +81,14 @@ def cmd_interactive(args):
     print("=" * 60)
     print("BitPacking Interactive Mode")
     print("=" * 60)
-    
+
     # Ask user to choose implementation
     print("\nAvailable implementations:")
     print("  1. noncross         - Non-crossing boundaries")
     print("  2. cross            - Crossing boundaries allowed")
     print("  3. overflow         - Two-tier with overflow (crossing)")
     print("  4. overflow-noncross- Two-tier with overflow (non-crossing)")
-    
+
     while True:
         impl_choice = input("\nSelect implementation (1-4): ").strip()
         if impl_choice == "1":
@@ -105,24 +105,24 @@ def cmd_interactive(args):
             break
         else:
             print("Invalid choice. Please enter 1, 2, 3, or 4.")
-    
+
     bp = get_bitpacking(implementation)
     last_pack = None
     last_data = None
-    
+
     print(f"\n[OK] Using '{implementation}' implementation")
     print("=" * 60)
-    
+
     while True:
         print("\nOptions:")
         print("  1. Compress data")
         print("  2. Decompress (show last compressed data)")
         print("  3. Get value at index")
         print("  4. Exit")
-        
+
         try:
             choice = input("\nEnter your choice (1-4): ").strip()
-            
+
             if choice == "1":
                 # Compress
                 numbers_input = input("Enter integers separated by spaces: ").strip()
@@ -131,12 +131,12 @@ def cmd_interactive(args):
                     if not numbers:
                         print("Error: Please enter at least one number.")
                         continue
-                    
+
                     last_data = numbers
                     last_pack = bp.compress(numbers)
                     bp.load(last_pack)
-                    
-                    print(f"\n[OK] Compression successful!")
+
+                    print("\n[OK] Compression successful!")
                     print(f"  Original data: {numbers}")
                     print(f"  Number of values (n): {last_pack['n']}")
                     print(f"  Bits per value (k): {last_pack['k']}")
@@ -145,37 +145,38 @@ def cmd_interactive(args):
                     if 'overflow' in last_pack and last_pack['overflow']:
                         print(f"  Overflow entries: {len(last_pack['overflow'])}")
                         print(f"  Overflow indices: {list(last_pack['overflow'].keys())}")
-                except ValueError as e:
-                    print(f"Error: Invalid input. Please enter integers only.")
+                except ValueError:
+                    print("Error: Invalid input. Please enter integers only.")
                 except Exception as e:
                     print(f"Error during compression: {e}")
-            
+
             elif choice == "2":
                 # Decompress
                 if last_pack is None:
                     print("Error: You must compress data first.")
                     continue
-                
+
                 try:
                     result = bp.decompress(last_pack)
-                    print(f"\n[OK] Decompression successful!")
+                    print("\n[OK] Decompression successful!")
                     print(f"  Decompressed data: {result}")
                     if last_data:
                         if result == last_data:
-                            print(f"  [OK] Matches original data")
+                            print("  [OK] Matches original data")
                         else:
-                            print(f"  [!] WARNING: Does not match original!")
+                            print("  [!] WARNING: Does not match original!")
                 except Exception as e:
                     print(f"Error during decompression: {e}")
-            
+
             elif choice == "3":
                 # Get
                 if last_pack is None:
                     print("Error: You must compress data first.")
                     continue
-                
+
                 try:
-                    index_input = input("Enter index (0 to {}): ".format(last_pack['n'] - 1)).strip()
+                    max_index = last_pack['n'] - 1
+                    index_input = input(f"Enter index (0 to {max_index}): ").strip()
                     index = int(index_input)
                     value = bp.get(index)
                     print(f"\n[OK] Value at index {index}: {value}")
@@ -187,15 +188,15 @@ def cmd_interactive(args):
                     print(f"Error: {e}")
                 except Exception as e:
                     print(f"Error: {e}")
-            
+
             elif choice == "4":
                 # Exit
                 print("\nExiting interactive mode. Goodbye!")
                 break
-            
+
             else:
                 print("Error: Invalid choice. Please enter 1, 2, 3, or 4.")
-        
+
         except KeyboardInterrupt:
             print("\n\nExiting interactive mode. Goodbye!")
             break

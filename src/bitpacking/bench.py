@@ -12,7 +12,7 @@ import time
 from bitpacking.factory import get_bitpacking
 
 
-def percentile(data: list[float], p: float) -> float:
+def percentile(data: list[int] | list[float], p: float) -> float:
     """Calculate percentile of sorted data."""
     if not data:
         return 0.0
