@@ -42,8 +42,14 @@ conda_env/
 htmlcov/
 .tox/
 
+# Example and test JSON files (organized in folders)
+examples/*.json
+test_files/*.json
+
+# Keep the folders themselves
+!examples/.gitkeep
+!test_files/.gitkeep
+
 # Project specific
-# Keep test data files
-!test*.json
-!test*.txt
 *.tex
+Makefile

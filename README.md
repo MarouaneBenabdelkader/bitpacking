@@ -143,18 +143,20 @@ pytest tests/ --cov=bitpacking --cov-report=html
 
 The CLI now provides enhanced output showing detailed compression/decompression results.
 
+**Note**: Example JSON files are organized in the `examples/` folder. Test files used during development are in `test_files/`.
+
 #### 1. Compress an Array
 
 ```bash
 # Create input file (use Python to ensure proper JSON formatting)
-python -c "import json; json.dump([1, 5, 3, 7, 2, 8, 4, 6, 9, 10], open('input.json', 'w'))"
+python -c "import json; json.dump([1, 5, 3, 7, 2, 8, 4, 6, 9, 10], open('examples/input.json', 'w'))"
 
 # Compress with non-crossing (default)
-bitpacking compress --in input.json --out compressed.json
+bitpacking compress --in examples/input.json --out examples/compressed.json
 # Output:
 # [OK] Compression successful!
-#   Input: input.json
-#   Output: compressed.json
+#   Input: examples/input.json
+#   Output: examples/compressed.json
 #   Original data: [1, 5, 3, 7, 2, 8, 4, 6, 9, 10]
 #   Number of values (n): 10
 #   Bits per value (k): 4
@@ -162,20 +164,20 @@ bitpacking compress --in input.json --out compressed.json
 #   Compressed words: [1686270801, 169]
 
 # Compress with crossing (better compression)
-bitpacking -i cross compress --in input.json --out compressed.json
+bitpacking -i cross compress --in examples/input.json --out examples/compressed.json
 
 # Compress with overflow (best for skewed data)
-bitpacking -i overflow compress --in input.json --out compressed.json
+bitpacking -i overflow compress --in examples/input.json --out examples/compressed.json
 ```
 
 #### 2. Decompress an Array
 
 ```bash
-bitpacking decompress --in compressed.json --out output.json
+bitpacking decompress --in examples/compressed.json --out examples/output.json
 # Output:
 # [OK] Decompression successful!
-#   Input: compressed.json
-#   Output: output.json
+#   Input: examples/compressed.json
+#   Output: examples/output.json
 #   Decompressed data: [1, 5, 3, 7, 2, 8, 4, 6, 9, 10]
 #   Number of values: 10
 ```
@@ -184,7 +186,7 @@ bitpacking decompress --in compressed.json --out output.json
 
 ```bash
 # Get element at index 3
-bitpacking get --in compressed.json --index 3
+bitpacking get --in examples/compressed.json --index 3
 # Output: 7
 ```
 
@@ -265,7 +267,7 @@ Output includes:
 bitpacking transmission --uncompressed-bits 320000 --compressed-bits 80000 --compression-time 1000000 --decompression-time 500000
 
 # Or analyze from an existing compressed file
-bitpacking transmission --file compressed.json
+bitpacking transmission --file examples/compressed.json
 
 # Shows analysis for different network speeds:
 # - 10 Gbps LAN
@@ -348,6 +350,10 @@ bitpacking/
 │   ├── test_cross.py        # 22 tests
 │   ├── test_overflow.py     # 17 tests
 │   └── test_transmission.py # 11 tests
+├── examples/                # Example JSON files
+│   └── .gitkeep            # (JSON files gitignored)
+├── test_files/              # Test JSON files
+│   └── .gitkeep            # (JSON files gitignored)
 ├── pyproject.toml           # Project configuration
 ├── README.md                # This file
 └── bitpacking.pdf           # Academic report (PDF)
