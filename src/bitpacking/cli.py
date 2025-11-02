@@ -31,6 +31,7 @@ def cmd_compress(args):
     print(f"  Number of values (n): {len(data)}")
     print(f"  Bits per value (k): {packed['k']}")
     print(f"  Storage words: {len(packed['words'])}")
+    print(f"  Compressed words: {packed['words']}")
     if 'overflow' in packed and packed['overflow']:
         print(f"  Overflow entries: {len(packed['overflow'])}")
         print(f"  Overflow indices: {list(packed['overflow'].keys())}")
@@ -140,6 +141,7 @@ def cmd_interactive(args):
                     print(f"  Number of values (n): {last_pack['n']}")
                     print(f"  Bits per value (k): {last_pack['k']}")
                     print(f"  Storage words: {len(last_pack['words'])}")
+                    print(f"  Compressed words: {last_pack['words']}")
                     if 'overflow' in last_pack and last_pack['overflow']:
                         print(f"  Overflow entries: {len(last_pack['overflow'])}")
                         print(f"  Overflow indices: {list(last_pack['overflow'].keys())}")

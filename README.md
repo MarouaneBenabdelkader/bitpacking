@@ -155,6 +155,7 @@ bitpacking compress --in input.json --out compressed.json
 #   Number of values (n): 10
 #   Bits per value (k): 4
 #   Storage words: 2
+#   Compressed words: [1686270801, 169]
 
 # Compress with crossing (better compression)
 bitpacking -i cross compress --in input.json --out compressed.json
@@ -231,6 +232,7 @@ Enter integers separated by spaces: 100 200 65000 300 400
   Number of values (n): 5
   Bits per value (k): 16
   Storage words: 3
+  Compressed words: [13107300, 19725800, 400]
 ```
 
 #### 5. Run Benchmarks
