@@ -1,7 +1,7 @@
 # Bit Packing - Integer Array Compression
 
-**Author:** Marouane BENABDELKADER  
-**Course:** Software Engineering 2025  
+**Author:** Marouane BENABDELKADER
+**Course:** Software Engineering 2025
 **Project:** Data Compression for Speed-Up Transmission
 
 **📄 [View Full Report (PDF)](bitpacking.pdf)**
@@ -11,6 +11,7 @@ Integer-array compression with direct random access using bit packing techniques
 ## Project Overview
 
 This project implements three variants of bit packing compression:
+
 1. **Non-crossing**: Values don't span 32-bit word boundaries
 2. **Crossing**: Values can span boundaries for optimal compression
 3. **Overflow**: Two-tier storage for arrays with outliers
@@ -77,6 +78,7 @@ pip install -e ".[dev]"
 ```
 
 This will install:
+
 - The `bitpacking` package
 - pytest (for testing)
 - black (for code formatting)
@@ -184,7 +186,7 @@ bitpacking get --in compressed.json --index 3
 # Output: 7
 ```
 
-#### 4. Interactive Mode (New!)
+#### 4. Interactive Mode
 
 The interactive mode provides a guided experience for exploring bit packing:
 
@@ -194,6 +196,7 @@ bitpacking interactive
 ```
 
 The interactive mode will:
+
 1. Ask you to choose an implementation (noncross, cross, overflow, overflow-noncross)
 2. Present a menu with options:
    - **Compress**: Enter space-separated integers to compress
@@ -202,6 +205,7 @@ The interactive mode will:
    - **Exit**: Quit the interactive mode
 
 Example session:
+
 ```
 ============================================================
 BitPacking Interactive Mode
@@ -246,6 +250,7 @@ bitpacking -i overflow-noncross bench  # overflow without crossing
 ```
 
 Output includes:
+
 - Compression time (median and p95)
 - Decompression time (median and p95)
 - Random access time (median and p95)
@@ -351,6 +356,7 @@ bitpacking/
 **Description**: Values are packed into 32-bit words without crossing boundaries.
 
 **Algorithm**:
+
 1. Determine k = minimum bits needed for maximum value
 2. Calculate capacity per word: `capacity = 32 // k`
 3. Pack values sequentially within word boundaries
@@ -365,6 +371,7 @@ bitpacking/
 **Description**: Values can span word boundaries for optimal space utilization.
 
 **Algorithm**:
+
 1. Determine k = minimum bits needed
 2. Pack values sequentially across all words
 3. Values may span two consecutive words
@@ -379,6 +386,7 @@ bitpacking/
 **Description**: Two-tier storage for arrays with outliers.
 
 **Algorithm**:
+
 1. Calculate threshold (default: 95th percentile)
 2. Determine k_main = bits for threshold value + 1 flag bit
 3. Values ≤ threshold stored in main array
@@ -386,6 +394,7 @@ bitpacking/
 5. Flag bit indicates main (0) or overflow (1) storage
 
 **Example**:
+
 - Input: `[1, 2, 3, 1024, 4, 5, 2048]`
 - Without overflow: 11 bits × 7 = 77 bits
 - With overflow: 4 bits × 7 + 11 bits × 2 = 50 bits
@@ -405,6 +414,7 @@ python generate_report.py
 ```
 
 This creates `REPORT.md` with detailed performance analysis including:
+
 - Compression ratios for each implementation
 - Timing measurements (compress, decompress, get operations)
 - Network scenario analysis
@@ -415,6 +425,7 @@ This creates `REPORT.md` with detailed performance analysis including:
 The project includes analysis to determine when compression reduces total transmission time:
 
 **Formula**:
+
 ```
 T_uncompressed = latency + (uncompressed_size / bandwidth)
 T_compressed = latency + compress_time + (compressed_size / bandwidth) + decompress_time
@@ -423,6 +434,7 @@ Compression is beneficial when: T_compressed < T_uncompressed
 ```
 
 **Key findings** (for typical scenario):
+
 - **Fast networks (>1 Gbps)**: Compression overhead exceeds savings
 - **Medium networks (10-100 Mbps)**: Compression starts to help
 - **Slow networks (<10 Mbps)**: Compression provides significant speedup
@@ -432,6 +444,7 @@ Compression is beneficial when: T_compressed < T_uncompressed
 📄 **[Full Report (PDF)](bitpacking.pdf)** - Comprehensive academic report covering all aspects of the project.
 
 The report includes:
+
 - Problem description and motivation
 - Software architecture with diagrams
 - Design patterns (Factory, Strategy, Template Method)
@@ -465,6 +478,7 @@ mypy src/
 ### Issue: `bitpacking: command not found`
 
 **Solution**: Ensure package is installed and environment is activated
+
 ```bash
 conda activate bitpacking
 pip install -e ".[dev]"
@@ -473,32 +487,37 @@ pip install -e ".[dev]"
 ### Issue: Tests fail with import errors
 
 **Solution**: Install package in development mode
+
 ```bash
 pip install -e ".[dev]"
 ```
 
 ## Author
 
-**Marouane BENABDELKADER**  
-Software Engineering Course 2025  
+**Marouane BENABDELKADER**
+Software Engineering Course 2025
 Project: Data Compression for Speed-Up Transmission
 
 ## Contact
 
 For questions or issues:
+
 - GitHub Issues: https://github.com/MarouaneBenabdelkader/bitpacking/issues
 - Email: (available upon request)
 
 ## Acknowledgments
 
 This project was developed as part of the Software Engineering course 2025, demonstrating:
+
 - Algorithm design and implementation
 - Software architecture patterns
 - Performance analysis and optimization
 - Comprehensive testing practices
 - Technical documentation
-bitpacking -i overflow bench  # Benchmark overflow
+  bitpacking -i overflow bench  # Benchmark overflow
+
 # Outputs JSON lines with performance metrics
+
 ```
 
 ## Transmission Time Analysis
